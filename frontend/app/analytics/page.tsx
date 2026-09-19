@@ -1,4 +1,11 @@
 "use client";
-import {useEffect,useState} from "react"; import {api} from "../../lib/api"; import {LineChart,Line,XAxis,YAxis,Tooltip,CartesianGrid} from "recharts";
+import {useEffect,useState} from "react";
+import {api} from "../../lib/api";
+import {LineChart,Line,XAxis,YAxis,Tooltip,CartesianGrid} from "recharts";
+
 type Trend={date:string;logs:number;errors:number;warnings:number};
-export default function Analytics(){const[data,setData]=useState<Trend[]>([]);const[error,setError]=useState("");useEffect(()=>{api<{trends:Trend[]}>("/api/dashboard/trends").then(r=>setData(r.trends||[])).catch(e=>setError(e.message))},[]);return <main style={{maxWidth:1000,margin:"40px auto",padding:24,fontFamily:"sans-serif"}}><h1>Analytics</h1>{error&&<p>{error}</p>}<LineChart width={900} height={400} data={data}><CartesianGrid strokeDasharray="3 3"/><XAxis dataKey="date"/><YAxis/><Tooltip/><Line type="monotone" dataKey="logs"/><Line type="monotone" dataKey="errors"/><Line type="monotone" dataKey="warnings"/></LineChart></main>}
+export default function Analytics(){
+  const[data,setData]=useState<Trend[]>([]);const[error,setError]=useState("");
+  useEffect(()=>{api<{trends:Trend[]}>("/api/dashboard/trends").then(r=>setData(r.trends||[])).catch(e=>setError(e instanceof Error?e.message:"Could not load analytics"))},[]);
+  return <main style={{maxWidth:1000,margin:"40px auto",padding:24,fontFamily:"sans-serif"}}><h1>Analytics</h1>{error&&<p>{error}</p>}<LineChart width={900} height={400} data={data}><CartesianGrid strokeDasharray="3 3"/><XAxis dataKey="date"/><YAxis/><Tooltip/><Line type="monotone" dataKey="logs"/><Line type="monotone" dataKey="errors"/><Line type="monotone" dataKey="warnings"/></LineChart></main>
+}
