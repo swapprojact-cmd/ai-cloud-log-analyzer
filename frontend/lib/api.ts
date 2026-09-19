@@ -21,3 +21,4 @@ export type Project = { id: string; name: string; description?: string | null; c
 export type LogRecord = { id: string; timestamp?: string | null; service?: string | null; level: string; message: string; source?: string | null; anomaly_score?: number | null; is_anomaly: boolean };
 export type Incident = { id: string; project_id: string; title: string; severity: string; description?: string | null; ai_explanation?: string | null; status: string; created_at: string; resolved_at?: string | null };
 export type User = { id: string; email?: string; name?: string; role?: string };
+export type AuthResponse = { user: User; access_token: string; refresh_token?: string };
