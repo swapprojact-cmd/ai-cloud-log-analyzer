@@ -1,3 +1,33 @@
 "use client";
-import {FormEvent,useState} from "react"; import {useRouter} from "next/navigation"; import {api,setToken,AuthResponse} from "../../lib/api";
-export default function Register(){const router=useRouter();const[email,setEmail]=useState("");const[password,setPassword]=useState("");const[error,setError]=useState("");const[busy,setBusy]=useState(false);async function submit(e:FormEvent){e.preventDefault();setBusy(true);setError("");try{const r=await api<AuthResponse>("/api/auth/register",{method:"POST",body:JSON.stringify({email,password})});if(r.access_token)setToken(r.access_token);else throw new Error("Registration succeeded but no session was returned. Confirm your email, then sign in.");router.push("/dashboard");}catch(err){setError(err instanceof Error?err.message:"Registration failed");}finally{setBusy(false)}}return <main style={{maxWidth:420,margin:"80px auto",padding:24,fontFamily:"sans-serif"}}><h1>Create account</h1><form onSubmit={submit} style={{display:"grid",gap:12}}><input required type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)}/><input required minLength={8} type="password" placeholder="Password (8+ chars)" value={password} onChange={e=>setPassword(e.target.value)}/><button disabled={busy}>{busy?"Creating…":"Create account"}</button>{error&&<p>{error}</p>}</form></main>}
+import {FormEvent,useState} from "react";
+import {useRouter} from "next/navigation";
+import {api,setToken,AuthResponse} from "../../lib/api";
+
+export default function Register(){
+  const router=useRouter();
+  const[email,setEmail]=useState("");
+  const[password,setPassword]=useState("");
+  const[error,setError]=useState("");
+  const[busy,setBusy]=useState(false);
+
+  async function submit(e:FormEvent){
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    try{
+      const r=await api<AuthResponse>("/api/auth/register",{method:"POST",body:JSON.stringify({email,password})});
+      if(r.access_token){
+        setToken(r.access_token);
+        router.push("/dashboard");
+      }else{
+        router.push("/login?registered=1");
+      }
+    }catch(err){
+      setError(err instanceof Error?err.message:"Registration failed");
+    }finally{
+      setBusy(false);
+    }
+  }
+
+  return <main style={{maxWidth:420,margin:"80px auto",padding:24,fontFamily:"sans-serif"}}><h1>Create account</h1><form onSubmit={submit} style={{display:"grid",gap:12}}><input required type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)}/><input required minLength={8} type="password" placeholder="Password (8+ chars)" value={password} onChange={e=>setPassword(e.target.value)}/><button disabled={busy}>{busy?"Creating…":"Create account"}</button>{error&&<p>{error}</p>}</form></main>
+}
