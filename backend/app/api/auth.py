@@ -12,6 +12,13 @@ class AuthRequest(BaseModel):
     password: str = Field(min_length=8, max_length=128)
 
 
+def ensure_default_project(user_id: str) -> None:
+    db = get_service_client()
+    existing = db.table("projects").select("id").eq("user_id", user_id).limit(1).execute().data or []
+    if not existing:
+        db.table("projects").insert({"user_id": user_id, "name": "Default Project", "description": "Your first log monitoring project"}).execute()
+
+
 @router.post("/register")
 def register(payload: AuthRequest):
     try:
@@ -20,6 +27,7 @@ def register(payload: AuthRequest):
             raise HTTPException(status_code=400, detail="Registration failed")
         try:
             get_service_client().table("users").upsert({"id": str(result.user.id), "email": payload.email}).execute()
+            ensure_default_project(str(result.user.id))
         except Exception:
             pass
         return {"user": {"id": str(result.user.id), "email": result.user.email}, "session": result.session}
@@ -35,6 +43,11 @@ def login(payload: AuthRequest):
         result = get_anon_client().auth.sign_in_with_password({"email": payload.email, "password": payload.password})
         if not result.user or not result.session:
             raise HTTPException(status_code=401, detail="Login failed or email confirmation is required")
+        try:
+            get_service_client().table("users").upsert({"id": str(result.user.id), "email": payload.email}).execute()
+            ensure_default_project(str(result.user.id))
+        except Exception:
+            pass
         return {"user": {"id": str(result.user.id), "email": result.user.email}, "access_token": result.session.access_token, "refresh_token": result.session.refresh_token}
     except HTTPException:
         raise
