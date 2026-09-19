@@ -13,9 +13,9 @@ class StorageService:
         key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
         self.client: Client | None = create_client(url, key) if url and key else None
 
-    def upload(self, project_id: str, filename: str, content: bytes) -> str:
+    def upload(self, user_id: str, project_id: str, filename: str, content: bytes) -> str:
         safe_name = Path(filename).name
-        object_path = f"{project_id}/{safe_name}"
+        object_path = f"{user_id}/{project_id}/{safe_name}"
         if not self.client:
             return object_path
         self.client.storage.from_(self.bucket).upload(
