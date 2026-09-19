@@ -40,27 +40,26 @@ async def upload_logs(project_id: str, file: UploadFile = File(...), user: dict 
 
 
 @router.post("")
-def create_log(project_id: str, payload: dict, user: dict = Depends(get_current_user)) -> dict:
+def create_log(project_id: str, payload: dict, user: dict = Depends(get_current_user)):
     owned_project(project_id, user["id"])
-    payload = {"project_id": project_id, **payload}
-    result = get_service_client().table("logs").insert(payload).execute()
+    result = get_service_client().table("logs").insert({"project_id": project_id, **payload}).execute()
     if not result.data:
         raise HTTPException(status_code=400, detail="Log creation failed")
     return result.data[0]
 
 
 @router.get("")
-def list_logs(project_id: str, limit: int = 100, user: dict = Depends(get_current_user)) -> dict:
+def list_logs(project_id: str, limit: int = 100, user: dict = Depends(get_current_user)):
     owned_project(project_id, user["id"])
     result = get_service_client().table("logs").select("*").eq("project_id", project_id).order("timestamp", desc=True).limit(min(limit, 500)).execute()
     return {"project_id": project_id, "logs": result.data or []}
 
 
 @router.delete("/{log_id}")
-def delete_log(log_id: str, user: dict = Depends(get_current_user)) -> dict:
-    result = get_service_client().table("logs").delete().eq("id", log_id).execute()
-    if not result.data:
+def delete_log(log_id: str, user: dict = Depends(get_current_user)):
+    row = get_service_client().table("logs").select("id,project_id").eq("id", log_id).maybe_single().execute().data
+    if not row:
         raise HTTPException(status_code=404, detail="Log not found")
-    project_id = result.data[0].get("project_id")
-    owned_project(project_id, user["id"])
+    owned_project(row["project_id"], user["id"])
+    get_service_client().table("logs").delete().eq("id", log_id).execute()
     return {"deleted": True, "id": log_id}
