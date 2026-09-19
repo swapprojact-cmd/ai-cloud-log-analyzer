@@ -31,7 +31,7 @@ async def upload_logs(project_id: str, file: UploadFile = File(...), user: dict 
         text = raw.decode("utf-8")
     except UnicodeDecodeError as exc:
         raise HTTPException(status_code=400, detail="File must be UTF-8 encoded") from exc
-    object_path = storage.upload(project_id, file.filename, raw)
+    object_path = storage.upload(user["id"], project_id, file.filename, raw)
     records = parser.parse_text(text, source=file.filename)
     rows = [{"project_id": project_id, **record} for record in records]
     if rows:
