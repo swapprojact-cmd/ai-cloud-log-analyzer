@@ -8,7 +8,7 @@ Next.js frontend → FastAPI backend → Supabase/PostgreSQL → ML anomaly dete
 
 ## Project status
 
-Initial project foundation. Implementation will be built layer-by-layer according to the technical project report.
+MVP implementation is connected across the frontend, FastAPI API, Supabase schema, ML anomaly detection, incident workflow, and AI explanation service.
 
 ## Planned stack
 
@@ -17,7 +17,7 @@ Initial project foundation. Implementation will be built layer-by-layer accordin
 - Data/ML: Pandas, NumPy, Scikit-learn
 - Database/Auth/Storage: Supabase/PostgreSQL
 - AI: OpenAI-compatible LLM API through a backend service
-- Deployment: Docker; cloud deployment configuration to be added
+- Deployment: Vercel frontend, Render FastAPI backend, Supabase services
 
 ## Security
 
