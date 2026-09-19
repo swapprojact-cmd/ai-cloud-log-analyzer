@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api/backend";
+const API_URL = "/api/backend";
 
 export function getToken() { return typeof window === "undefined" ? null : localStorage.getItem("acl_access_token"); }
 export function setToken(token: string) { localStorage.setItem("acl_access_token", token); }
